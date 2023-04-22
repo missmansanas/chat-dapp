@@ -71,11 +71,18 @@ async function connectMetamask() {
     connectBtn.innerHTML = truncAddress;
     connectBtn.classList.remove("btn-warning");
     connectBtn.classList.add("btn-dark");
+  } else {
+    connectBtn.innerHTML = "Connect MetaMask";
+    connectBtn.classList.remove("btn-dark");
+    connectBtn.classList.add("btn-warning");
+
   }
 
   // Load last msg immediately after connecting metamask
   await getMessage();
 }
+
+let lastSentMessage = "";
 
 async function sendMessage() {
   const recipientAddress = document.getElementById("recipientAddress").value;
@@ -86,7 +93,30 @@ async function sendMessage() {
   await tx.wait();
 
   // load the last message that was sent
-  await getMessage();
+  let sentMessage = await contract.getMessageFrom(signer.getAddress());
+  let messagesDiv = document.getElementById("messages");
+
+    // compare the new message to the last loaded message
+    if (sentMessage !== lastSentMessage) {
+      let messageNode = document.createElement("p");
+      messageNode.classList.add(
+        "lead",
+        "bg-success",
+        "text-light",
+        "py-2",
+        "px-3",
+        "my-3",
+        "mx-0",
+        "rounded-pill",
+        "w-50"
+      );
+      messageNode.innerText = sentMessage;
+      messagesDiv.appendChild(messageNode);
+  
+      // update the last loaded message
+      lastLoadedMessage = newMessage;
+      // console.log(`Last message received: ${newMessage}`);
+    }
 }
 
 let lastLoadedMessage = "";
@@ -106,15 +136,16 @@ async function getMessage() {
       "px-3",
       "my-3",
       "mx-0",
-      "rounded-pill"
+      "rounded-pill",
+      "w-50"
     );
     messageNode.innerText = newMessage;
     messagesDiv.appendChild(messageNode);
 
     // update the last loaded message
     lastLoadedMessage = newMessage;
-    console.log(`Last message received: ${newMessage}`);
+    // console.log(`Last message received: ${newMessage}`);
   } else {
-    alert("Last message already loaded.");
+    alert("All messages loaded.");
   }
 }
