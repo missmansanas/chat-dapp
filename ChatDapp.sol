@@ -1,18 +1,28 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract ChatDapp {
-    mapping(address => string) private messages;
+    struct Message {
+        address sender;
+        address recipient;
+        uint256 timestamp;
+        string content;
+    }
+
+    mapping(address => Message[]) private sentMessages;
+    mapping(address => Message[]) private receivedMessages;
 
     function sendMessage(address recipient, string memory message) public {
-        messages[recipient] = message;
+        Message memory newMessage = Message(msg.sender, recipient, block.timestamp, message);
+        sentMessages[msg.sender].push(newMessage);
+        receivedMessages[recipient].push(newMessage);
     }
 
-    function getMessage() public view returns (string memory) {
-        return messages[msg.sender];
+    function getSentMessages() public view returns (Message[] memory) {
+        return sentMessages[msg.sender];
     }
 
-    function getMessageFrom(address sender) public view returns (string memory) {
-        return messages[sender];
+    function getReceivedMessages() public view returns (Message[] memory) {
+        return receivedMessages[msg.sender];
     }
 }

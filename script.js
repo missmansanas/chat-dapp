@@ -1,55 +1,93 @@
-const contractAddress = "0x9A3209d94B909682BB1F936c5f7CC334Edf76077";
+const contractAddress = "0xECABF58BBe4aDea47303c8879C9327C385fF9186";
 const contractABI = [
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "recipient",
-        type: "address"
-      },
-      {
-        internalType: "string",
-        name: "message",
-        type: "string"
-      }
-    ],
-    name: "sendMessage",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    inputs: [],
-    name: "getMessage",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "sender",
-        type: "address"
-      }
-    ],
-    name: "getMessageFrom",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string"
-      }
-    ],
-    stateMutability: "view",
-    type: "function"
-  }
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "sendMessage",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getReceivedMessages",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "content",
+						"type": "string"
+					}
+				],
+				"internalType": "struct ChatDapp.Message[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getSentMessages",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "content",
+						"type": "string"
+					}
+				],
+				"internalType": "struct ChatDapp.Message[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
 ];
 
 let signer;
@@ -67,10 +105,10 @@ async function connectMetamask() {
   if (signer) {
     let connectBtn = document.getElementById("connectMetamask");
     let address = await signer.getAddress();
-    let truncAddress = address.slice(0, 5) + "..." + address.slice(-4);
-    connectBtn.innerHTML = truncAddress;
+    let truncAddress = `${address.slice(0, 5)}...${address.slice(-4)}`;
+    connectBtn.innerHTML = `Connected: ${truncAddress}`;
     connectBtn.classList.remove("btn-warning");
-    connectBtn.classList.add("btn-dark");
+    connectBtn.classList.add("btn-light", "border-warning");
   } else {
     connectBtn.innerHTML = "Connect MetaMask";
     connectBtn.classList.remove("btn-dark");
@@ -78,12 +116,9 @@ async function connectMetamask() {
 
   }
 
-  // Load last msg immediately after connecting metamask
-  await getMessage();
+  // Refresh immediately after connecting metamask
+  await getSortedMessages();
 }
-
-let lastSentMessage = "";
-
 async function sendMessage() {
   const recipientAddress = document.getElementById("recipientAddress").value;
   const message = document.getElementById("message").value;
@@ -91,35 +126,105 @@ async function sendMessage() {
   // send the transaction and wait for confirmation
   const tx = await contract.sendMessage(recipientAddress, message);
   await tx.wait();
+  alert("Message sent");
 
-  // load the last message that was sent
-  let sentMessage = await contract.getMessageFrom(signer.getAddress());
-  let messagesDiv = document.getElementById("messages");
-
-    // compare the new message to the last loaded message
-    if (sentMessage !== lastSentMessage) {
-      let messageNode = document.createElement("p");
-      messageNode.classList.add(
-        "lead",
-        "bg-success",
-        "text-light",
-        "py-2",
-        "px-3",
-        "my-3",
-        "mx-0",
-        "rounded-pill",
-        "w-50"
-      );
-      messageNode.innerText = sentMessage;
-      messagesDiv.appendChild(messageNode);
-  
-      // update the last loaded message
-      lastLoadedMessage = newMessage;
-      // console.log(`Last message received: ${newMessage}`);
-    }
+  getSortedMessages();
 }
 
-let lastLoadedMessage = "";
+
+// Gets all messages and displays them in the chat container
+
+async function getSortedMessages() {
+  const receivedMessages = await contract.getReceivedMessages();
+  const sentMessages = await contract.getSentMessages();
+
+  const allMessages = [...receivedMessages, ...sentMessages];
+  allMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+  const messagesWithDirection = allMessages.map(message => {
+    if (receivedMessages.includes(message)) {
+      return {...message, direction: "received"};
+    } else {
+      return {...message, direction: "sent"};
+    }
+  });
+
+    // Displays all messages on the front-end
+
+    const messagesDiv = document.querySelector("#messages");
+
+    messagesWithDirection.forEach((msg) => {
+      if (msg.direction == "sent") {
+        let messageRow = document.createElement("div")
+        messageRow.classList.add(
+          "d-flex",
+          "flex-column",
+          "align-items-end"
+        );
+      
+        let msgInfoDiv = document.createElement("p");
+        let truncAddress = `${msg.recipient.slice(0, 5)}...${msg.recipient.slice(-4)}`;
+        msgInfoDiv.innerHTML = `To: ${truncAddress} on ${msg.timestamp}`
+        msgInfoDiv.classList.add(
+          "text-end",
+          "text-secondary",
+          "mt-2", "mb-0", "mx-0"
+        )
+        messageRow.appendChild(msgInfoDiv);
+    
+        let messageNode = document.createElement("p");
+        messageNode.classList.add(
+          "lead",
+          "bg-success",
+          "text-light",
+          "py-2", "px-3",
+          "mt-0", "mb-2", "mx-0",
+          "rounded-pill",
+          "text-end",
+          "mw-50"
+        );
+        messageNode.innerText = msg.content;
+        messageRow.appendChild(messageNode);
+        messagesDiv.appendChild(messageRow);
+    
+      } else if (msg.direction == "received") {
+        let messageRow = document.createElement("div")
+        messageRow.classList.add(
+          "d-flex",
+          "flex-column",
+          "align-items-start"
+        );
+      
+        let msgInfoDiv = document.createElement("p");
+        let truncAddress = `${msg.recipient.slice(0, 5)}...${msg.recipient.slice(-4)}`;
+        msgInfoDiv.innerHTML = `From: ${truncAddress} on ${msg.timestamp}`
+        msgInfoDiv.classList.add(
+          "text-start",
+          "text-secondary",
+          "mt-2", "mb-0", "mx-0"
+        )
+        messageRow.appendChild(msgInfoDiv);
+    
+        let messageNode = document.createElement("p");
+        messageNode.classList.add(
+          "lead",
+          "bg-primary",
+          "text-light",
+          "py-2", "px-3",
+          "mt-0", "mb-2", "mx-0",
+          "rounded-pill",
+          "text-start",
+          "mw-50"
+        );
+        messageNode.innerText = msg.content;
+        messageRow.appendChild(messageNode);
+        messagesDiv.appendChild(messageRow);
+    
+      }
+
+    })
+
+}
 
 async function getMessage() {
   let newMessage = await contract.getMessage();
