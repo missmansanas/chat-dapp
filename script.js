@@ -242,31 +242,31 @@ async function getSortedMessages() {
 
 }
 
-async function getMessage() {
-  let newMessage = await contract.getMessage();
-  let messagesDiv = document.getElementById("messages");
+// async function getMessage() {
+//   let newMessage = await contract.getMessage();
+//   let messagesDiv = document.getElementById("messages");
 
-  // compare the new message to the last loaded message
-  if (newMessage !== lastLoadedMessage) {
-    let messageNode = document.createElement("p");
-    messageNode.classList.add(
-      "lead",
-      "bg-primary",
-      "text-light",
-      "py-2",
-      "px-3",
-      "my-3",
-      "mx-0",
-      "rounded-pill",
-      "w-50"
-    );
-    messageNode.innerText = newMessage;
-    messagesDiv.appendChild(messageNode);
+//   // compare the new message to the last loaded message
+//   if (newMessage !== lastLoadedMessage) {
+//     let messageNode = document.createElement("p");
+//     messageNode.classList.add(
+//       "lead",
+//       "bg-primary",
+//       "text-light",
+//       "py-2",
+//       "px-3",
+//       "my-3",
+//       "mx-0",
+//       "rounded-pill",
+//       "w-50"
+//     );
+//     messageNode.innerText = newMessage;
+//     messagesDiv.appendChild(messageNode);
 
-    // update the last loaded message
-    lastLoadedMessage = newMessage;
-    // console.log(`Last message received: ${newMessage}`);
-  } else {
-    alert("All messages loaded.");
-  }
-}
+//     // update the last loaded message
+//     lastLoadedMessage = newMessage;
+//     // console.log(`Last message received: ${newMessage}`);
+//   } else {
+//     alert("All messages loaded.");
+//   }
+// }
