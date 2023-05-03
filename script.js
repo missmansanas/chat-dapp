@@ -212,7 +212,7 @@ async function getSortedMessages() {
         );
       
         let msgInfoDiv = document.createElement("p");
-        let truncAddress = `${msg.recipient.slice(0, 5)}...${msg.recipient.slice(-4)}`;
+        let truncAddress = `${msg.sender.slice(0, 5)}...${msg.sender.slice(-4)}`;
         msgInfoDiv.innerHTML = `From: ${truncAddress} on ${msg.timestamp}`
         msgInfoDiv.classList.add(
           "text-start",
