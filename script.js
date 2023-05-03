@@ -1,4 +1,4 @@
-const contractAddress = "0xECABF58BBe4aDea47303c8879C9327C385fF9186";
+const contractAddress = "0xff892AC621BB92a14CCb1CF6dAd6148331f7BA06";
 const contractABI = [
 	{
 		"inputs": [
@@ -96,11 +96,27 @@ let contract;
 
 async function connectMetamask() {
   // console.log("Attempting to connect Metamask");
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
   await provider.send("eth_requestAccounts", []);
   // console.log("Awaiting provider");
   signer = await provider.getSigner();
   contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+  // MetaMask -> request switch to Mumbai
+  window.ethereum.request({
+    method: "wallet_addEthereumChain",
+    params: [{
+        chainId: "0x13881",
+        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+        chainName: "Mumbai",
+        nativeCurrency: {
+            name: "MATIC",
+            symbol: "MATIC",
+            decimals: 18
+        },
+        blockExplorerUrls: ["https://mumbai.polygonscan.com"]
+    }]
+  });
 
   if (signer) {
     let connectBtn = document.getElementById("connectMetamask");
