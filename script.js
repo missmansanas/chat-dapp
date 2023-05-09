@@ -91,14 +91,11 @@ const contractABI = [
 ];
 
 let signer;
-// const signer = provider.getSigner();
 let contract;
 
 async function connectMetamask() {
-  // console.log("Attempting to connect Metamask");
   const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
   await provider.send("eth_requestAccounts", []);
-  // console.log("Awaiting provider");
   signer = await provider.getSigner();
   contract = new ethers.Contract(contractAddress, contractABI, signer);
 
@@ -135,6 +132,7 @@ async function connectMetamask() {
   // Refresh immediately after connecting metamask
   await getSortedMessages();
 }
+
 async function sendMessage() {
   const recipientAddress = document.getElementById("recipientAddress").value;
   const message = document.getElementById("message").value;
@@ -241,32 +239,3 @@ async function getSortedMessages() {
     })
 
 }
-
-// async function getMessage() {
-//   let newMessage = await contract.getMessage();
-//   let messagesDiv = document.getElementById("messages");
-
-//   // compare the new message to the last loaded message
-//   if (newMessage !== lastLoadedMessage) {
-//     let messageNode = document.createElement("p");
-//     messageNode.classList.add(
-//       "lead",
-//       "bg-primary",
-//       "text-light",
-//       "py-2",
-//       "px-3",
-//       "my-3",
-//       "mx-0",
-//       "rounded-pill",
-//       "w-50"
-//     );
-//     messageNode.innerText = newMessage;
-//     messagesDiv.appendChild(messageNode);
-
-//     // update the last loaded message
-//     lastLoadedMessage = newMessage;
-//     // console.log(`Last message received: ${newMessage}`);
-//   } else {
-//     alert("All messages loaded.");
-//   }
-// }
