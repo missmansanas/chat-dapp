@@ -1,4 +1,4 @@
-const contractAddress = "0xff892AC621BB92a14CCb1CF6dAd6148331f7BA06";
+const contractAddress = "0xae8430CFE1aB8dAaA589C9D6F38fdA8Fc8eF892D";
 const contractABI = [
 	{
 		"inputs": [
@@ -94,26 +94,26 @@ let signer;
 let contract;
 
 async function connectMetamask() {
-  const provider = new ethers.providers.Web3Provider(window.ethereum, 80001);
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   signer = await provider.getSigner();
   contract = new ethers.Contract(contractAddress, contractABI, signer);
 
   // MetaMask -> request switch to Mumbai
-  window.ethereum.request({
-    method: "wallet_addEthereumChain",
-    params: [{
-        chainId: "0x13881",
-        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
-        chainName: "Mumbai",
-        nativeCurrency: {
-            name: "MATIC",
-            symbol: "MATIC",
-            decimals: 18
-        },
-        blockExplorerUrls: ["https://mumbai.polygonscan.com"]
-    }]
-  });
+  // window.ethereum.request({
+  //   method: "wallet_addEthereumChain",
+  //   params: [{
+  //       chainId: "0x13881",
+  //       rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+  //       chainName: "Mumbai",
+  //       nativeCurrency: {
+  //           name: "MATIC",
+  //           symbol: "MATIC",
+  //           decimals: 18
+  //       },
+  //       blockExplorerUrls: ["https://mumbai.polygonscan.com"]
+  //   }]
+  // });
 
   if (signer) {
     let connectBtn = document.getElementById("connectMetamask");
@@ -166,6 +166,7 @@ async function getSortedMessages() {
     // Displays all messages on the front-end
 
     const messagesDiv = document.querySelector("#messages");
+    messagesDiv.innerHTML = '';
 
     messagesWithDirection.forEach((msg) => {
       if (msg.direction == "sent") {
@@ -178,7 +179,8 @@ async function getSortedMessages() {
       
         let msgInfoDiv = document.createElement("p");
         let truncAddress = `${msg.recipient.slice(0, 5)}...${msg.recipient.slice(-4)}`;
-        msgInfoDiv.innerHTML = `To: ${truncAddress} on ${msg.timestamp}`
+        let msgDate = new Date(msg.timestamp * 1000);
+        msgInfoDiv.innerHTML = `To: ${truncAddress} on ${msgDate.toDateString()}`;
         msgInfoDiv.classList.add(
           "text-end",
           "text-secondary",
@@ -211,7 +213,8 @@ async function getSortedMessages() {
       
         let msgInfoDiv = document.createElement("p");
         let truncAddress = `${msg.sender.slice(0, 5)}...${msg.sender.slice(-4)}`;
-        msgInfoDiv.innerHTML = `From: ${truncAddress} on ${msg.timestamp}`
+        let msgDate = new Date(msg.timestamp * 1000);
+        msgInfoDiv.innerHTML = `From: ${truncAddress} on ${msgDate.toDateString()}`;
         msgInfoDiv.classList.add(
           "text-start",
           "text-secondary",

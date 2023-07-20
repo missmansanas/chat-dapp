@@ -9,22 +9,23 @@
     <script src="script.js"></script>
   </head>
   <body onload="connectMetamask()" class="p-5">
-    <div class="container text-center mb-3">
-      <button
-            type="button"
-            class="btn btn-warning"
-            onclick="connectMetamask()"
-            id="connectMetamask"
-          >
-            Connect MetaMask
-          </button>
-          <button type="button" class="btn btn-dark" onclick="getSortedMessages()">
-            Refresh Chat
-          </button>      
-    </div>
-
+    <h1 class='text-center'>My Chatting dApp</h1>
     <div class="container d-flex flex-column flex-lg-row align-items-start gap-3">
-      <div id="composer" class="container px-0 sticky-top">
+      <div id="composer" class="container px-0 pt-5 sticky-top bg-white">
+        <div class="container text-center mb-3">
+          <button
+                type="button"
+                class="btn btn-warning"
+                onclick="connectMetamask()"
+                id="connectMetamask"
+              >
+                Connect MetaMask
+              </button>
+              <button type="button" class="btn btn-dark" onclick="getSortedMessages()">
+                Refresh Chat
+              </button>      
+        </div>
+        
         <form class="">
           <div class="form-group my-2">
             <label for="recipientAddress">Send to</label>
@@ -39,7 +40,7 @@
           </button>
         </form>
       </div>
-      <div class="container bg-light py-4" id="messages">
+      <div class="container bg-light py-4 vh-50 overflow-auto" id="messages">
 
       </div>
     </div>
