@@ -99,22 +99,6 @@ async function connectMetamask() {
   signer = await provider.getSigner();
   contract = new ethers.Contract(contractAddress, contractABI, signer);
 
-  // MetaMask -> request switch to Mumbai
-  // window.ethereum.request({
-  //   method: "wallet_addEthereumChain",
-  //   params: [{
-  //       chainId: "0x13881",
-  //       rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
-  //       chainName: "Mumbai",
-  //       nativeCurrency: {
-  //           name: "MATIC",
-  //           symbol: "MATIC",
-  //           decimals: 18
-  //       },
-  //       blockExplorerUrls: ["https://mumbai.polygonscan.com"]
-  //   }]
-  // });
-
   if (signer) {
     let connectBtn = document.getElementById("connectMetamask");
     let address = await signer.getAddress();
